@@ -7,5 +7,5 @@ export const publicConfig = {
    * Force using ws://localhost:3001/ws in development.
    * Websockets must be a separate server in Vite dev because of HMR.
    */
-  WEBSOCKET_ORIGIN: import.meta.env.PUBLIC_ENV__WEBSOCKET_ORIGIN ?? 'ws://localhost:3001',
+  WEBSOCKET_ORIGIN: import.meta.env.PUBLIC_ENV__WEBSOCKET_ORIGIN ?? 'ws://localhost:3001/ws',
 };

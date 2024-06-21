@@ -13,8 +13,10 @@ const app = new Hono();
 
 app.route('/ws', wsRouter);
 
-Bun.serve({
+const server = Bun.serve({
   fetch: app.fetch,
   port: 3001,
   websocket: websocket,
 });
+
+console.log(`🔋 Running in ${server.url}`);

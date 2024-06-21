@@ -22,11 +22,7 @@ wsRouter.get(
   upgradeWebSocket((c) => {
     // This handler doesn't matter because we're not using the `websocket` from `createBunWebsocket`.
     // We'll be using a custom one below.
-    return {
-      onMessage: (msg) => {
-        console.log('HIII!');
-      },
-    };
+    return {};
   })
 );
 
@@ -38,6 +34,7 @@ wsRouter.get(
 const websocket = createBunWSHandler({
   router: appRouter,
   createContext(params) {},
+  onError: console.error,
 });
 
 export { websocket, wsRouter };

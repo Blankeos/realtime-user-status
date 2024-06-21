@@ -31,10 +31,8 @@ export const usersRouter = router({
         // emit data to client
         emit.next(data);
       };
-      console.log('listeners before', eventEmitter.listeners('changeStatus'));
       // trigger `onAdd()` when `add` is triggered in our event emitter
       eventEmitter.on('changeStatus', onAdd);
-      console.log('listeners after', eventEmitter.listeners('changeStatus'));
       // unsubscribe function when client disconnects or stops subscribing
       return () => {
         eventEmitter.off('changeStatus', onAdd);

@@ -16,8 +16,12 @@ import { createMutation, createQuery, useQueryClient } from '@tanstack/solid-que
 import { createSignal, For, Match, onMount, Show, Switch, VoidProps } from 'solid-js';
 import { toast } from 'solid-sonner';
 
+import { produce } from 'solid-js/store';
+
 export default function DashboardPage() {
   const { user } = useAuthContext();
+
+  const queryClient = useQueryClient();
 
   const [avatarURL, setAvatarURL] = createSignal('');
   const { height, width } = useWindowSize();
@@ -45,6 +49,18 @@ export default function DashboardPage() {
   onMount(() => {
     trpcWSClient.users.onChangeStatus.subscribe({} as any, {
       onData: (value) => {
+        queryClient.setQueryData(
+          ['users'],
+          produce((_usersData: typeof usersQuery.data) => {
+            _usersData?.forEach((_user) => {
+              if (_user.id === value?.id) {
+                _user.status = value.status;
+                _user.lastUpdatedStatusTimestamp = value.lastUpdatedStatusTimestamp;
+              }
+            });
+          })
+        );
+
         console.log('[ws] onData', value);
       },
       onError: (error) => {
