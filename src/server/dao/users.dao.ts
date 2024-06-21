@@ -34,7 +34,7 @@ export const userDAO = {
           'createdTimestamp',
           'updatedTimestamp',
         ])
-        .execute();
+        .executeTakeFirst();
 
       return result;
     },

@@ -18,6 +18,11 @@ const t = initTRPC.context<typeof createContext>().create();
 // Exports (routers and procedures)
 // ===========================================================================
 
+import { EventEmitter } from 'events';
+
+// create a global event emitter (could be replaced by redis, etc)
+export const eventEmitter = new EventEmitter();
+
 /**
  * Export reusable router and procedure helpers
  * that can be used throughout the router
@@ -44,7 +49,7 @@ export const authedProcedure = t.procedure.use(async function isAuthed(opts) {
   // use `header()` instead of setCookie to avoid TS errors
   if (sessionCookie) {
     opts.ctx.honoContext.header('Set-Cookie', sessionCookie.serialize(), {
-      append: true
+      append: true,
     });
   }
 
@@ -60,7 +65,7 @@ export const authedProcedure = t.procedure.use(async function isAuthed(opts) {
 export const protectedProcedure = authedProcedure.use(async function isRequired(opts) {
   if (!opts.ctx.user?.id) {
     throw new TRPCError({
-      code: 'UNAUTHORIZED'
+      code: 'UNAUTHORIZED',
     });
   }
 

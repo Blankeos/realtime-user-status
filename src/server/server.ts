@@ -8,6 +8,7 @@ import { serveStatic } from 'hono/bun';
 import { renderPage } from 'vike/server';
 import { appRouter } from './_app';
 import { createContext } from './context';
+import { websocket, wsRouter } from './websocket';
 
 const app = new Hono();
 
@@ -23,15 +24,19 @@ app.use(
     router: appRouter,
     createContext(opts, c) {
       return createContext(c);
-    }
+    },
   })
 );
 
 if (privateConfig.NODE_ENV === 'production') {
+  // In prod, use the attached websocket.
+  app.route('/ws', wsRouter);
+
+  // In prod, serve static files.
   app.use(
     '/*',
     serveStatic({
-      root: `./dist/client/`
+      root: `./dist/client/`,
     })
   );
 }
@@ -41,7 +46,7 @@ app.get('*', async (c, next) => {
   const pageContextInit = {
     urlOriginal: c.req.url,
     request: c.req,
-    response: c.res
+    response: c.res,
   };
   const pageContext = await renderPage(pageContextInit);
   const { httpResponse } = pageContext;
@@ -58,11 +63,13 @@ app.get('*', async (c, next) => {
 
 // Returning errors.
 app.onError((_, c) => {
+  const errorMessage = 'Error: ' + c.error?.message || 'Something went wrong';
+  console.log(errorMessage);
   return c.json(
     {
       error: {
-        message: c.error?.message ?? 'Something went wrong.'
-      }
+        message: errorMessage,
+      },
     },
     500
   );
@@ -72,5 +79,7 @@ console.log('Running at http://localhost:' + privateConfig.PORT);
 
 export default {
   port: privateConfig.PORT,
-  fetch: app.fetch
+  fetch: app.fetch,
+  /** In prod, use the attached websocket. */
+  websocket: privateConfig.NODE_ENV === 'production' ? websocket : undefined,
 };

@@ -1,6 +1,16 @@
 import { publicConfig } from '@/config.public';
 import type { AppRouter } from '@/server/_app';
-import { createTRPCClient, httpBatchLink } from '@trpc/client';
+import { createTRPCClient, createWSClient, httpBatchLink, wsLink } from '@trpc/client';
+
+function getWSClient() {
+  if (typeof window === 'undefined') return [];
+
+  const wsClient = createWSClient({
+    url: `${publicConfig.NODE_ENV === 'development' ? 'ws://localhost:3001/ws' : publicConfig.WEBSOCKET_ORIGIN}`,
+  });
+
+  return [wsLink({ client: wsClient })];
+}
 
 /**
  * A regular TRPC Client that can be used in the browser.
@@ -15,8 +25,10 @@ export const trpcClient = createTRPCClient<AppRouter>({
     // }),
 
     // With batching:
-    httpBatchLink({
-      url: `${publicConfig.BASE_ORIGIN}/api`,
-    }),
+    httpBatchLink({ url: `${publicConfig.BASE_ORIGIN}/api` }),
   ],
+});
+
+export const trpcWSClient = createTRPCClient<AppRouter>({
+  links: [...getWSClient()],
 });

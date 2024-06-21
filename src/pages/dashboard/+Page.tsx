@@ -7,13 +7,13 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { useClientSize } from '@/hooks/use-client-size';
 import { useWindowSize } from '@/hooks/use-window-size';
-import { trpcClient } from '@/lib/trpc-client';
+import { trpcClient, trpcWSClient } from '@/lib/trpc-client';
 import { UserStatus } from '@/server/db/enums';
 import { useAuthContext } from '@/stores/auth.context';
 import { formatElapsedSMHD } from '@/utils/format-relative-time';
 import { DropdownMenu } from '@kobalte/core/dropdown-menu';
 import { createMutation, createQuery, useQueryClient } from '@tanstack/solid-query';
-import { createSignal, For, Match, Show, Switch, VoidProps } from 'solid-js';
+import { createSignal, For, Match, onMount, Show, Switch, VoidProps } from 'solid-js';
 import { toast } from 'solid-sonner';
 
 export default function DashboardPage() {
@@ -41,6 +41,26 @@ export default function DashboardPage() {
       usersQuery.refetch();
     },
   }));
+
+  onMount(() => {
+    trpcWSClient.users.onChangeStatus.subscribe({} as any, {
+      onData: (value) => {
+        console.log('[ws] onData', value);
+      },
+      onError: (error) => {
+        console.log('[ws] error', error);
+      },
+      onStarted: () => {
+        console.log('Started subscribing to onChangeStatus');
+      },
+      onStopped: () => {
+        console.log('Stopped subscribing to onChangeStatus');
+      },
+      onComplete() {
+        console.log('Completed subscribing to onChangeStatus');
+      },
+    });
+  });
 
   return (
     <ProtectedRoute>
@@ -102,7 +122,6 @@ function UserBlock(props: VoidProps<UserBlockProps>) {
   const changeStatusMutation = createMutation(() => ({
     mutationKey: ['changeStatus'],
     mutationFn: async (status: UserStatus) => {
-      console.log('mutation', status);
       return await trpcClient.users.changeStatus.mutate({ status });
     },
     onSuccess: () => {
@@ -136,7 +155,6 @@ function UserBlock(props: VoidProps<UserBlockProps>) {
         <div class="flex items-center gap-x-1 text-xs text-neutral-400">
           <StatusBadge status={props.status} />
           <span>{elapsedStatusUpdated()}</span>
-          {/* <span>{elpa}</span> */}
         </div>
       </div>
 
@@ -189,19 +207,19 @@ function StatusBadge(props: VoidProps<{ status: UserStatus }>) {
     <>
       <Switch>
         <Match when={props.status === UserStatus.Offline}>
-          <span class="inline-block h-2 w-2 rounded-full bg-neutral-300" />
+          <span class="inline-block h-2 w-2 flex-shrink-0 rounded-full bg-neutral-300" />
           Offline
         </Match>
         <Match when={props.status === UserStatus.Online}>
-          <span class="inline-block h-2 w-2 rounded-full bg-green-500" />
+          <span class="inline-block h-2 w-2 flex-shrink-0 rounded-full bg-green-500" />
           Online
         </Match>
         <Match when={props.status === UserStatus.Busy}>
-          <span class="inline-block h-2 w-2 rounded-full bg-yellow-500" />
+          <span class="inline-block h-2 w-2 flex-shrink-0 rounded-full bg-yellow-500" />
           Busy
         </Match>
         <Match when={props.status === UserStatus.InCall}>
-          <span class="inline-block h-2 w-2 rounded-full bg-blue-500" />
+          <span class="inline-block h-2 w-2 flex-shrink-0 rounded-full bg-blue-500" />
           In a Call
         </Match>
       </Switch>
