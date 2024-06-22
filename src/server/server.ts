@@ -28,10 +28,10 @@ app.use(
   })
 );
 
-if (privateConfig.NODE_ENV === 'production') {
-  // In prod, use the attached websocket.
-  app.route('/ws', wsRouter);
+// In prod, use the attached websocket.
+app.route('/ws', wsRouter);
 
+if (privateConfig.NODE_ENV === 'production') {
   // In prod, serve static files.
   app.use(
     '/*',
@@ -80,6 +80,7 @@ console.log('Running at http://localhost:' + privateConfig.PORT);
 export default {
   port: privateConfig.PORT,
   fetch: app.fetch,
+  websocket: websocket,
   /** In prod, use the attached websocket. */
-  websocket: privateConfig.NODE_ENV === 'production' ? websocket : undefined,
+  // websocket: privateConfig.NODE_ENV === 'production' ? websocket : undefined,
 };

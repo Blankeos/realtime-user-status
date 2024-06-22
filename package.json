@@ -4,7 +4,8 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "concurrently --names 'vite,ws' 'bunx --bun vite --host' 'bun run --watch src/server/dev-ws-server.ts'",
+    "dev": "bunx --bun vite --host",
+    "//dev": "concurrently --names 'vite,ws' 'bunx --bun vite --host' 'bun run --watch src/server/dev-ws-server.ts'",
     "build": "tsc && vite build",
     "ws": "bun run --watch src/server/dev-ws-server.ts",
     "preview": "NODE_ENV=production bun run src/server/server.ts",

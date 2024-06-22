@@ -76,6 +76,19 @@ export default function DashboardPage() {
         console.log('Completed subscribing to onChangeStatus');
       },
     });
+
+    trpcWSClient.auth.onUserJoined.subscribe(undefined, {
+      onData: (value) => {
+        queryClient.setQueryData(
+          ['users'],
+          produce((_usersData: typeof usersQuery.data) => {
+            _usersData?.push(value);
+          })
+        );
+
+        console.log('[ws] onData', value);
+      },
+    });
   });
 
   return (

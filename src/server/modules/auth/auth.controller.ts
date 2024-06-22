@@ -1,5 +1,7 @@
 import { lucia } from '@/server/lucia';
-import { authedProcedure, publicProcedure, router } from '@/server/trpc';
+import { authedProcedure, eventEmitter, publicProcedure, router } from '@/server/trpc';
+import { observable } from '@trpc/server/observable';
+import { User } from 'lucia';
 import { z } from 'zod';
 import { login } from './services/login.service';
 import { register } from './services/register.service';
@@ -53,10 +55,12 @@ export const authRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      const { userId, sessionCookie } = await register({
+      const { userId, user, sessionCookie } = await register({
         username: input.username,
         password: input.password,
       });
+
+      eventEmitter.emit('userJoined', user);
 
       // use `header()` instead of setCookie to avoid TS errors
       ctx.honoContext.header('Set-Cookie', sessionCookie.serialize(), {
@@ -70,4 +74,18 @@ export const authRouter = router({
         },
       };
     }),
+  onUserJoined: publicProcedure.subscription(() => {
+    // return an `observable` with a callback which is triggered immediately
+    return observable<User>((emit) => {
+      const onJoin = (data: User) => {
+        emit.next(data);
+      };
+      // subscribe
+      eventEmitter.on('userJoined', onJoin);
+      // unsubscribe
+      return () => {
+        eventEmitter.off('userJoined', onJoin);
+      };
+    });
+  }),
 });

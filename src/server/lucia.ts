@@ -2,9 +2,8 @@
 // Lucia Client (wraps around DB connection as well).
 // ===========================================================================
 
-import { privateConfig } from '@/config.private';
-
 import { PrismaAdapter } from '@lucia-auth/adapter-prisma';
+import { Selectable } from 'kysely';
 import { Lucia } from 'lucia';
 import { prisma } from './db/prisma';
 import { User } from './db/types';
@@ -16,7 +15,11 @@ export const lucia = new Lucia(adapter, {
   sessionCookie: {
     attributes: {
       // set to `true` when using HTTPS
-      secure: privateConfig.NODE_ENV === 'production'
+      // secure: privateConfig.NODE_ENV === 'production',
+      // TODO Safari is very strict on this on localhost. It will not save cookies
+      // If not HTTPs. During `vite preview`, we're technically not on HTTPs
+      // For now this is a workaround.
+      secure: false,
     },
 
     /**
@@ -33,20 +36,23 @@ export const lucia = new Lucia(adapter, {
      * Alternatively: You should make sure to send the Request and Respose back
      * between the browser -> ssr -> api -> ssr -> browser.
      */
-    expires: true // Default: true,
+    expires: true, // Default: true,
   },
   getUserAttributes: (attributes) => {
     return {
       username: attributes.username,
       createdTimestamp: attributes.createdTimestamp,
-      updatedTimestamp: attributes.updatedTimestamp
+      updatedTimestamp: attributes.updatedTimestamp,
+      avatarURL: attributes.avatarURL,
+      status: attributes.status,
+      lastUpdatedStatusTimestamp: attributes.lastUpdatedStatusTimestamp,
     };
-  }
+  },
 });
 
 declare module 'lucia' {
   interface Register {
     Lucia: typeof lucia;
-    DatabaseUserAttributes: User;
+    DatabaseUserAttributes: Selectable<User>;
   }
 }

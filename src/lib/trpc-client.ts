@@ -6,7 +6,8 @@ function getWSClient() {
   if (typeof window === 'undefined') return [];
 
   const wsClient = createWSClient({
-    url: `${publicConfig.NODE_ENV === 'development' ? 'ws://localhost:3001/ws' : publicConfig.WEBSOCKET_ORIGIN}`,
+    url: publicConfig.WEBSOCKET_ORIGIN,
+    // url: `${publicConfig.NODE_ENV === 'development' ? 'ws://localhost:3001/ws' : publicConfig.WEBSOCKET_ORIGIN}`,
   });
 
   return [wsLink({ client: wsClient })];

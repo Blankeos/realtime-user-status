@@ -7,11 +7,22 @@
 - [x] Auth
 - [x] Image change
 - [x] Last Status Updated with Timer
-- [ ] Realtime pubsub with websockets
+- [x] Realtime pubsub with websockets (currently broken in dev, works in prod: https://github.com/honojs/vite-plugins/issues/140)
+
+**Notable Stack**
+
+- Hono
+- tRPC (subscriptions)
+- Bun (websockets)
+
+**Used**
+
+- Hono and Bun Websocket Upgrading to 101 Switching Protocol: https://hono.dev/docs/helpers/websocket
+- Bun Websocket Handling the tRPC router: https://github.com/cah4a/trpc-bun-adapter
 
 ---
 
-Built with:
+Bootstrapped with:
 
 ## 💙 Solid Launch
 

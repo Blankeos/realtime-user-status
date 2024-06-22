@@ -24,12 +24,21 @@ export const authDAO = {
     createFromUsernameAndPassword: async (username: string, passwordHash: string) => {
       const userId = generateIdFromEntropySize(10); // 16 characters long
 
-      await db
+      const user = await db
         .insertInto('User')
         .values({ id: userId, passwordHash: passwordHash, username: username })
-        .execute();
+        .returning([
+          'id',
+          'status',
+          'username',
+          'avatarURL',
+          'lastUpdatedStatusTimestamp',
+          'createdTimestamp',
+          'updatedTimestamp',
+        ])
+        .executeTakeFirst();
 
-      return { userId };
-    }
-  }
+      return { userId, user };
+    },
+  },
 };
