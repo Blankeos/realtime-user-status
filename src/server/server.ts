@@ -3,6 +3,7 @@
 // https://github.com/phonzammi/vike-hono-example/blob/main/server/index.ts
 import { privateConfig } from '@/config.private';
 import { trpcServer } from '@hono/trpc-server';
+import { Serve } from 'bun';
 import { Hono } from 'hono';
 import { serveStatic } from 'hono/bun';
 import { renderPage } from 'vike/server';
@@ -75,12 +76,17 @@ app.onError((_, c) => {
   );
 });
 
-console.log('Running at http://localhost:' + privateConfig.PORT);
+// if (privateConfig.NODE_ENV === 'production') {
+//   const server = Bun.serve({
+//     fetch: app.fetch,
+//     port: privateConfig.PORT,
+//     websocket: websocket,
+//   });
+//   console.log(`Running at ${server.url}`);
+// }
 
 export default {
-  port: privateConfig.PORT,
   fetch: app.fetch,
-  websocket: websocket,
-  /** In prod, use the attached websocket. */
-  // websocket: privateConfig.NODE_ENV === 'production' ? websocket : undefined,
-};
+  port: privateConfig.PORT,
+  websocket: privateConfig.NODE_ENV === 'production' ? websocket : undefined,
+} as Serve;
