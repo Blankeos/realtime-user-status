@@ -11,6 +11,7 @@ export const authRouter = router({
     return {
       user: ctx.user,
       session: ctx.session,
+      nice: 1,
     };
   }),
   login: authedProcedure

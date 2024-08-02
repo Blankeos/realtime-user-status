@@ -7,7 +7,7 @@ import vikeSolid from 'vike-solid/vite';
 import vike from 'vike/plugin';
 
 // Hono
-import devServer from '@hono/vite-dev-server';
+// import devServer from '@hono/vite-dev-server';
 
 // Vite
 import { dirname, resolve } from 'node:path';
@@ -19,19 +19,19 @@ const root = resolve(__dirname, '.');
 
 export default defineConfig({
   plugins: [
-    devServer({
-      entry: './src/server/server.ts',
-      exclude: [
-        /^\/@.+$/,
-        /.*\.(ts|tsx|vue)($|\?)/,
-        /.*\.(s?css|less)($|\?)/,
-        /^\/favicon\.ico$/,
-        /.*\.(svg|png)($|\?)/,
-        /^\/(public|assets|static)\/.+/,
-        /^\/node_modules\/.*/,
-      ],
-      injectClientScript: false,
-    }),
+    // devServer({
+    //   entry: './src/server/server.ts',
+    //   exclude: [
+    //     /^\/@.+$/,
+    //     /.*\.(ts|tsx|vue)($|\?)/,
+    //     /.*\.(s?css|less)($|\?)/,
+    //     /^\/favicon\.ico$/,
+    //     /.*\.(svg|png)($|\?)/,
+    //     /^\/(public|assets|static)\/.+/,
+    //     /^\/node_modules\/.*/,
+    //   ],
+    //   injectClientScript: false,
+    // }),
     vike(),
     vikeSolid(),
     solidSvg(),
@@ -41,6 +41,9 @@ export default defineConfig({
   ],
   server: {
     port: 3000,
+    hmr: {
+      port: 3002,
+    },
   },
   preview: {
     port: 3000,

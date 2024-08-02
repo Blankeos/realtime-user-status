@@ -3,12 +3,14 @@
 // https://github.com/phonzammi/vike-hono-example/blob/main/server/index.ts
 import { privateConfig } from '@/config.private';
 import { trpcServer } from '@hono/trpc-server';
-import { Serve } from 'bun';
 import { Hono } from 'hono';
 import { serveStatic } from 'hono/bun';
+
 import { renderPage } from 'vike/server';
+import type { ViteDevServer } from 'vite';
 import { appRouter } from './_app';
 import { createContext } from './context';
+import { connectToWeb } from './utils/connect-to-web';
 import { websocket, wsRouter } from './websocket';
 
 const app = new Hono();
@@ -40,6 +42,30 @@ if (privateConfig.NODE_ENV === 'production') {
       root: `./dist/client/`,
     })
   );
+}
+// In development, attach the vite middleware.
+else {
+  console.log('In development');
+  let vite: ViteDevServer;
+  const { createServer } = await import('vite');
+  vite = await createServer({
+    server: { middlewareMode: true },
+    appType: 'custom',
+    base: '/',
+    // assetsInclude: []
+  });
+
+  app.use(async (c, next) => {
+    const handler = connectToWeb(vite.middlewares);
+
+    const response = await handler(c.req.raw);
+
+    if (response) {
+      return response;
+    }
+    // If not handled by Vike, continue to next middleware
+    await next();
+  });
 }
 
 // For the Frontend + SSR
@@ -76,6 +102,12 @@ app.onError((_, c) => {
   );
 });
 
+const server = Bun.serve({
+  fetch: app.fetch,
+  port: privateConfig.PORT,
+  websocket: websocket,
+});
+
 // if (privateConfig.NODE_ENV === 'production') {
 //   const server = Bun.serve({
 //     fetch: app.fetch,
@@ -85,8 +117,8 @@ app.onError((_, c) => {
 //   console.log(`Running at ${server.url}`);
 // }
 
-export default {
-  fetch: app.fetch,
-  port: privateConfig.PORT,
-  websocket: privateConfig.NODE_ENV === 'production' ? websocket : undefined,
-} as Serve;
+// export default {
+//   fetch: app.fetch,
+//   port: privateConfig.PORT,
+//   websocket: privateConfig.NODE_ENV === 'production' ? websocket : undefined,
+// } as Serve;
