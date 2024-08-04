@@ -52,7 +52,6 @@ else {
     server: { middlewareMode: true },
     appType: 'custom',
     base: '/',
-    // assetsInclude: []
   });
 
   app.use(async (c, next) => {
