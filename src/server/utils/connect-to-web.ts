@@ -1,3 +1,5 @@
+// 📒 This is directly forked from: https://github.com/vikejs/vike-node/blob/main/packages/vike-node/src/runtime/adapters/connectToWeb.ts
+
 export { connectToWeb };
 
 // ===========================================================================
@@ -189,7 +191,8 @@ function connectToWeb(handler: ConnectMiddleware): WebHandler {
           const { readable, headers, statusCode } = await onReadable;
           const responseBody = statusCodesWithoutBody.includes(statusCode)
             ? null
-            : (Readable.toWeb(readable) as ReadableStream);
+            : // @ts-ignore
+              (Readable.toWeb(readable) as ReadableStream);
           resolve(
             new Response(responseBody, {
               status: statusCode,

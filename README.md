@@ -7,7 +7,9 @@
 - [x] Auth
 - [x] Image change
 - [x] Last Status Updated with Timer
-- [x] Realtime pubsub with websockets (currently broken in dev, works in prod: https://github.com/honojs/vite-plugins/issues/140)
+- [x] Realtime pubsub with websockets
+- [x] HMR using a custom `vite.middlewares` + `connectToWeb`.
+- [x] Watch with Nodemon (bun run --watch is broken because it conflicts with Vite's `createServer`)
 
 **Notable Stack**
 

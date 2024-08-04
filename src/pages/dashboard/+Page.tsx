@@ -114,7 +114,7 @@ export default function DashboardPage() {
           </div>
         </div>
         <div class="flex w-full flex-col items-center gap-y-5">
-          <h1 class="font-semibold">Usersasdsd</h1>
+          <h1 class="font-semibold">Users</h1>
 
           <div class="flex w-full max-w-sm flex-col items-center gap-y-3">
             <For each={usersQuery.data}>
